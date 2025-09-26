@@ -1,0 +1,16 @@
+# .gitignore (racine)
+# Node & logs
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Builds
+client/dist/
+server/dist/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
