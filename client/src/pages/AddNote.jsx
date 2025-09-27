@@ -1,6 +1,18 @@
+// client/src/pages/AddNote.jsx
 import { useState } from "react";
 import { db, collection, addDoc, serverTimestamp } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
+
+function parseTags(input) {
+  return Array.from(
+    new Set(
+      input
+        .split(",")
+        .map(t => t.trim().toLowerCase())
+        .filter(Boolean)
+    )
+  ).slice(0, 10); // max 10 tags
+}
 
 async function notif(msg) {
   try {
@@ -17,25 +29,28 @@ async function notif(msg) {
 export default function AddNote() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [tagsStr, setTagsStr] = useState(""); // "cours, perso"
   const navigate = useNavigate();
 
   async function submit(e) {
     e.preventDefault();
     if (!title.trim() || !content.trim()) return;
+    const tags = parseTags(tagsStr);
     await addDoc(collection(db, "notes"), {
       title: title.trim(),
       content: content.trim(),
+      tags,
       createdAt: serverTimestamp(),
     });
     await notif("Note ajoutée ✅");
-    navigate("/")
+    navigate("/");
   }
 
   return (
     <section className="card" style={{ maxWidth: 720, margin: "0 auto" }}>
       <div className="header-row">
         <h2 style={{ margin: 0 }}>Nouvelle note</h2>
-        {/* <Link className="btn" to="/">Voir la liste</Link> */}
+        <Link className="btn" to="/">Voir la liste</Link>
       </div>
 
       <form className="form" onSubmit={submit}>
@@ -52,6 +67,14 @@ export default function AddNote() {
           value={content}
           onChange={e=>setContent(e.target.value)}
         />
+
+        <input
+          className="input"
+          placeholder="Tags (séparés par des virgules : cours, perso)"
+          value={tagsStr}
+          onChange={e=>setTagsStr(e.target.value)}
+        />
+
         <div className="actions">
           <Link className="btn btn-ghost" to="/">Annuler</Link>
           <button className="btn btn-primary" type="submit">Ajouter</button>
